@@ -31,17 +31,6 @@ class HookTest extends TestCase
                 ]
             ]
         ]);
-
-        /*
-         *  "from": {
-      "id": 420203062,
-      "is_bot": false,
-      "first_name": "Andrey",
-      "username": "webnitros",
-      "language_code": "ru"
-    },
-        */
-
         $Hook->run($this->action());
 
     }

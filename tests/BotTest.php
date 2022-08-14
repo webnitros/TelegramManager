@@ -18,7 +18,7 @@ class BotTest extends TestCase
 
     public function testSetMyCommands()
     {
-        $Bot = new Bot('', '');
+        $Bot = $this->bot();
         $commands = [
             'scope' => new BotCommandScopeDefault(),
             'commands' => [
