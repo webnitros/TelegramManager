@@ -9,11 +9,10 @@
 namespace TelegramManager;
 
 
-use Longman\TelegramBot\Entities\BotCommandScope\BotCommandScopeDefault;
-use Longman\TelegramBot\Exception\TelegramException;
 use Longman\TelegramBot\Request;
 use Longman\TelegramBot\Telegram;
 use TelegramManager\Clients\Action;
+use TelegramManager\Helpers\RequestClient;
 
 class Bot
 {
@@ -30,7 +29,7 @@ class Bot
 
         // Create Telegram API object
         $this->telegram = new Telegram($this->bot_api_key, $this->bot_username);
-        $Client = new \GuzzleHttp\Client([
+        $Client = new RequestClient([
             'debug' => true,
             'base_uri' => 'https://api.telegram.org',
         ]);
