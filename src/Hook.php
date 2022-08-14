@@ -22,28 +22,40 @@ class Hook
      * @var User
      */
     private $user;
+    /* @var string $command */
     private $command;
+    /* @var string $query */
+    private $query;
 
     public function __construct(Bot $bot, array $properties)
     {
         $this->properties = $properties;
         $this->bot = $bot;
-
     }
-
 
     public function user()
     {
         if (is_null($this->user)) {
             $chatId = @(int)$this->properties['message']['chat']['id'];
             $this->user = new User($chatId, $this->bot);
+
+
+            $from = @(array)$this->properties['message']['from'];
+            if (!empty($from)) {
+                $this->user->setTelegramId($from['id']);
+                $this->user->setIsBot($from['is_bot']);
+                $this->user->setFirstName(@$from['first_name']);
+                $this->user->setUsername(@$from['username']);
+                $this->user->setLanguageCode(@$from['language_code']);
+            }
         }
         return $this->user;
     }
 
     public function run(CommandAction $commandAction)
     {
-        if ($actions = $commandAction->find($this->command())) {
+        $command = $this->command();
+        if ($actions = $commandAction->find($command)) {
             foreach ($actions as $k => $action) {
                 if (!empty($action)) {
                     if (gettype($action) === 'object') {
@@ -62,19 +74,31 @@ class Hook
         }
     }
 
+    public function query()
+    {
+        return $this->query;
+    }
+
     public function command()
     {
         if (is_null($this->command)) {
-
             $text = @$this->properties['message']['text'];
-            if (empty($text)) {
-                throw new \Exception('Произошла ошибка не удалось определить команду');
-            }
+            $type = @$this->properties['message']['entities'][0]['type'];
+            if ($type === 'bot_command') {
+                if (empty($text)) {
+                    throw new \Exception('Произошла ошибка не удалось определить команду');
+                }
 
-            list($command, $text) = explode(' ', $text);
-            $command = trim($command);
-            $command = ltrim($command, '/');
-            $command = str_ireplace('_', ' ', $command);
+                $array = explode(' ', $text);
+                $command = $array[0];
+                $this->query = implode(' ', $array);
+                $command = trim($command);
+                $command = ltrim($command, '/');
+                $this->command = str_ireplace('_', ' ', $command);
+            } else {
+                $this->command = '';
+                $this->query = $text;
+            }
         }
         return $this->command;
     }

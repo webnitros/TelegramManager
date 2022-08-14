@@ -114,12 +114,12 @@ class Bot
         ]);
     }
 
-    public function message(int $chat_id, string $body)
+    public function message(int $chat_id, string $body, $parse_mode = 'markdown')
     {
         return Request::sendMessage([
             'chat_id' => $chat_id,
             'text' => $body,
-            'parse_mode' => 'markdown',
+            'parse_mode' => $parse_mode,
         ]);
     }
 
