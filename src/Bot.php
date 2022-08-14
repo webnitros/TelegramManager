@@ -29,15 +29,7 @@ class Bot
         $this->bot_username = $username;
 
         // Create Telegram API object
-        try {
-            // Create Telegram API object
-            $this->telegram = new Telegram($this->bot_api_key, $this->bot_username);
-        } catch (TelegramException $e) {
-            echo '<pre>';
-            print_r($e->getMessage());
-            die;
-        }
-
+        $this->telegram = new Telegram($this->bot_api_key, $this->bot_username);
         $Client = new \GuzzleHttp\Client([
             'debug' => true,
             'base_uri' => 'https://api.telegram.org',
