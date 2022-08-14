@@ -22,6 +22,7 @@ class Hook
      * @var User
      */
     private $user;
+    private $command;
 
     public function __construct(Bot $bot, array $properties)
     {
@@ -42,11 +43,7 @@ class Hook
 
     public function run(CommandAction $commandAction)
     {
-        $command = $this->parseCommand();
-
-
-        if ($actions = $commandAction->find($command)) {
-
+        if ($actions = $commandAction->find($this->command())) {
             foreach ($actions as $k => $action) {
                 if (!empty($action)) {
                     if (gettype($action) === 'object') {
@@ -65,52 +62,21 @@ class Hook
         }
     }
 
-    public function hookClass()
+    public function command()
     {
-        $command = $this->parseCommandClass();
-        $class = "\TelegramManager\Commands\{$command}";
-        $class = str_ireplace('{', '', $class);
-        $class = str_ireplace('}', '', $class);
-        if (!class_exists($class)) {
-            throw new \Exception('Класс "' . $class . '" не найден ');
+        if (is_null($this->command)) {
+
+            $text = @$this->properties['message']['text'];
+            if (empty($text)) {
+                throw new \Exception('Произошла ошибка не удалось определить команду');
+            }
+
+            list($command, $text) = explode(' ', $text);
+            $command = trim($command);
+            $command = ltrim($command, '/');
+            $command = str_ireplace('_', ' ', $command);
         }
-        $Command = new $class($this);
-        if (!$Command instanceof Command) {
-            throw new \Exception('Class implements not ICommand');
-        }
-        $Command->process();
-    }
-
-    public function parseCommand()
-    {
-        $text = @$this->properties['message']['text'];
-        if (empty($text)) {
-            throw new \Exception('Произошла ошибка не удалось определить команду');
-        }
-
-        list($command, $text) = explode(' ', $text);
-        $command = trim($command);
-        $command = ltrim($command, '/');
-        $command = str_ireplace('_', ' ', $command);
-        return $command;
-    }
-
-
-    public function parseCommandClass()
-    {
-        $text = @$this->properties['message']['text'];
-        if (empty($text)) {
-            throw new \Exception('Произошла ошибка не удалось определить команду');
-        }
-
-        list($command, $text) = explode(' ', $text);
-        $command = trim($command);
-        $command = ltrim($command, '/');
-        $command = str_ireplace('_', ' ', $command);
-        $command = ucwords($command);
-        $command = str_ireplace(' ', '', $command);
-
-        return $command;
+        return $this->command;
     }
 
     public function getProperties()
